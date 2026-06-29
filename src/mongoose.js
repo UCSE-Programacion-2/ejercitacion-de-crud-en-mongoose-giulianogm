@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const dns = require('dns');
+const { type } = require('os');
 
 // Para versiones de Node 24.14.0 o superior
 dns.setServers(['8.8.8.8']);
@@ -14,7 +15,8 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/MundialDB'
 async function connectDB() {
     try {
         // Tu código aquí
-        
+        await mongoose.connect(MONGO_URI);
+        console.log('Conexion exitosa!')
     } catch (error) {
         console.error("Error al conectar a MongoDB:", error);
     }
@@ -32,9 +34,29 @@ async function connectDB() {
  */
 const equipoSchema = new mongoose.Schema({
     // Tu código aquí
+    equipo: {
+        type: String,
+        required: true
+    },
+
+    tecnico:{
+        type: String,
+        required:true
+    },
+
+    continente:{
+        type: String,
+        required: true
+    },
+
+    campeonatos_mundiales:{
+        type: Number,
+        required: true
+    }
+
 });
 
-const Equipo = null; // Reemplazar null por mongoose.model(...)
+const Equipo = mongoose.model('Equipo', equipoSchema); // Reemplazar null por mongoose.model(...)
 
 // Función para cerrar la conexión (útil para tests)
 async function closeDB() {

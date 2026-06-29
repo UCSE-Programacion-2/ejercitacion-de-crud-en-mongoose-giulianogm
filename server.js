@@ -20,6 +20,12 @@ const PORT = process.env.PORT || 3000;
  */
 app.get('/equipos', async (req, res) => {
     // Tu código aquí
+    try{
+        const equipos = await Equipo.find();
+        res.status(200).json(equipos)
+    } catch (error){
+        res.status(500).json({error: error.message}); 
+    }
 });
 
 /**
@@ -33,6 +39,20 @@ app.get('/equipos', async (req, res) => {
  */
 app.get('/equipos/buscar', async (req, res) => {
     // Tu código aquí
+    try {
+        const { tecnico } = req.query;
+        if (!tecnico) {
+            return res.status(400).json({ error: "Falta el parámetro de búsqueda 'tecnico'" });
+        }
+        
+        const equipos = await Equipo.find({ 
+            tecnico: { $regex: tecnico, $options: 'i' } 
+        });
+        
+        res.status(200).json(equipos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 /**
@@ -46,6 +66,23 @@ app.get('/equipos/buscar', async (req, res) => {
  */
 app.get('/equipos/:id', async (req, res) => {
     // Tu código aquí
+    try {
+        const { id } = req.params;
+        
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: "ID invalido" });
+        }
+        
+        const equipo = await Equipo.findById(id);
+        
+        if (!equipo) {
+            return res.status(404).json({ error: "Equipo no encontrado" });
+        }
+        
+        res.status(200).json(equipo);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 /**
@@ -58,6 +95,21 @@ app.get('/equipos/:id', async (req, res) => {
  */
 app.post('/equipos', async (req, res) => {
     // Tu código aquí
+    try {
+        const { equipo, tecnico, continente, campeonatos_mundiales } = req.body;
+        
+        const nuevoEquipo = await Equipo.create({
+            equipo,
+            tecnico,
+            continente,
+            campeonatos_mundiales
+        });
+        
+        res.status(201).json(nuevoEquipo);
+    } catch (error) {
+        // Mongoose lanza errores de validación que caerán aquí
+        res.status(400).json({ error: error.message });
+    }
 });
 
 /**
@@ -71,6 +123,28 @@ app.post('/equipos', async (req, res) => {
  */
 app.put('/equipos/:id', async (req, res) => {
     // Tu código aquí
+    try {
+        const { id } = req.params;
+        const { equipo, tecnico, continente, campeonatos_mundiales } = req.body;
+        
+        if (!equipo || !tecnico || !continente || campeonatos_mundiales === undefined) {
+            return res.status(400).json({ error: "Faltan campos requeridos para la actualización" });
+        }
+        
+        const equipoActualizado = await Equipo.findByIdAndUpdate(
+            id, 
+            req.body, 
+            { new: true, runValidators: true }
+        );
+        
+        if (!equipoActualizado) {
+            return res.status(404).json({ error: "Equipo no encontrado" });
+        }
+        
+        res.status(200).json(equipoActualizado);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
 
 /**
@@ -82,6 +156,23 @@ app.put('/equipos/:id', async (req, res) => {
  */
 app.delete('/equipos/:id', async (req, res) => {
     // Tu código aquí
+    try {
+        const { id } = req.params;
+        
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: "ID inválido" });
+        }
+        
+        const equipoEliminado = await Equipo.findByIdAndDelete(id);
+        
+        if (!equipoEliminado) {
+            return res.status(404).json({ error: "Equipo no encontrado" });
+        }
+        
+        res.status(200).json({ mensaje: "Equipo eliminado correctamente" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Iniciar el servidor solo si este archivo se ejecuta directamente
