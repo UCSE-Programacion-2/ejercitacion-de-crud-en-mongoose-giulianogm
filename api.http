@@ -8,7 +8,7 @@ GET {{url}}
 GET {{url}}/buscar?tecnico=lionel
 
 ### 3. Obtener un equipo por ID existente (reemplaza el ID por uno real de tu base de datos)
-GET {{url}}/5f9b3b3b3b3b3b3b3b3b3b31
+GET {{url}}/6a41bf25dee7aeea25493c35
 
 ### 4. Crear un nuevo equipo (Exitoso)
 POST {{url}}
